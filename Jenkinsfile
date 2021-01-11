@@ -1,10 +1,10 @@
 node {
-    agent any
+  //  agent any
     environment {
         //be sure to replace "willbla" with your own Docker Hub username
         DOCKER_IMAGE_NAME = "ldelpozo/train-schedule"
     }
-    stages {
+//    stages {
         stage('Build') {
             steps {
                 echo 'Running build automation'
@@ -42,7 +42,7 @@ node {
             when {
                 branch 'master'
             }
-            steps {
+            //steps {
                 input 'Deploy to Production?'
                 milestone(1)
                 /*
@@ -64,7 +64,7 @@ node {
                     echo "### Deploy configuration file on kubernetes ####"
                     sshCommand remote: remote, command: "kubectl apply -f train-schedule-kube.yml"
                 }
-            }
+            //}
         }
-    }
+    //}
 }
