@@ -1,7 +1,5 @@
 node {
-    environment {
-        DOCKER_IMAGE_NAME = "ldelpozo/train-schedule"
-    }
+    withEnv([ 'DOCKER_IMAGE_NAME="ldelpozo/train-schedule' ]) {
         stage('Build') {
                 echo 'Running build automation'
                 sh './gradlew build --no-daemon'
@@ -9,7 +7,7 @@ node {
         }
         stage('Build Docker Image') {
             if (env.BRANCH_NAME == 'master') {
-                app = docker.build(DOCKER_IMAGE_NAME)
+                app = docker.build(${DOCKER_IMAGE_NAME})
                 app.inside {
                     sh 'echo Hello, World!'
                 }
@@ -42,4 +40,5 @@ node {
                 }
             }
         }
+    }
 }
