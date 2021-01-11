@@ -8,27 +8,23 @@ node {
                 archiveArtifacts artifacts: 'dist/trainSchedule.zip'
         }
         stage('Build Docker Image') {
-            when {
-                branch 'master'
-            }
-            app = docker.build(DOCKER_IMAGE_NAME)
-            app.inside {
-                sh 'echo Hello, World!'
+            if (env.BRANCH_NAME == 'master') {
+                app = docker.build(DOCKER_IMAGE_NAME)
+                app.inside {
+                    sh 'echo Hello, World!'
+                }
             }
         }
         stage('Push Docker Image') {
-            when {
-                branch 'master'
-            }
-            docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
+            if (env.BRANCH_NAME == 'master') {
+                docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
                 app.push("${env.BUILD_NUMBER}")
                 app.push("latest")
             }
+            }
         }
         stage('DeployToProduction') {
-            when {
-                branch 'master'
-            }
+            if (env.BRANCH_NAME == 'master') {
                 input 'Deploy to Production?'
                 milestone(1)
                 def remote = [:]
@@ -44,5 +40,6 @@ node {
                     echo "### Deploy configuration file on kubernetes ####"
                     sshCommand remote: remote, command: "kubectl apply -f train-schedule-kube.yml"
                 }
+            }
         }
 }
