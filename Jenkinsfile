@@ -1,4 +1,4 @@
-pipeline {
+node {
     agent any
     environment {
         //be sure to replace "willbla" with your own Docker Hub username
@@ -59,15 +59,10 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'webserver_login', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     remote.user = USERNAME
                     remote.password = USERPASS
-                        try {
-                            echo "### Puts a configuration file from the current workspace to remote node ####"
-                            sshPut remote: remote, from: 'train-schedule-kube.yml', into: '.'
-                        } catch (err) {
-                            echo: 'caught error: $err'
-                        }
-                        echo "### Deploy configuration file on kubernetes ####"
-                        sshCommand remote: remote, command: "kubectl apply -f train-schedule-kube.yml"
-
+                    echo "### Puts a configuration file from the current workspace to remote node ####"
+                    sshPut remote: remote, from: 'train-schedule-kube.yml', into: '.'
+                    echo "### Deploy configuration file on kubernetes ####"
+                    sshCommand remote: remote, command: "kubectl apply -f train-schedule-kube.yml"
                 }
             }
         }
