@@ -45,11 +45,23 @@ pipeline {
             steps {
                 input 'Deploy to Production?'
                 milestone(1)
+                /*
                 kubernetesDeploy(
                     kubeconfigId: 'kubeconfig',
                     configs: 'train-schedule-kube.yml',
                     enableConfigSubstitution: true
-                )
+                )*/
+                withCredentials([usernamePassword(credentialsId: 'webserver_login', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
+                    script {
+                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$kubemaster_ip \"scp ${workspace}/train-schedule-kube.yml .\""
+                        try {
+                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$kubemaster_ip \"kubectl apply -f train-schedule-kube.yml\""
+                        } catch (err) {
+                            echo: 'caught error: $err'
+                        }
+                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$kubemaster_ip \"kubectl get pods; kubectl get services\""
+                    }
+                }
             }
         }
     }
