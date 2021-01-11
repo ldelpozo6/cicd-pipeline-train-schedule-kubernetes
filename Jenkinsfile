@@ -51,13 +51,14 @@ pipeline {
                     configs: 'train-schedule-kube.yml',
                     enableConfigSubstitution: true
                 )*/
+                def remote = [:]
+                remote.name = "kubemaster"
+                remote.host = "$kubemaster_ip"
+                remote.allowAnyHosts = true
+                
                 withCredentials([usernamePassword(credentialsId: 'webserver_login', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
-                    def remote = [:]
-                    remote.name = "kubemaster"
-                    remote.host = "$kubemaster_ip"
                     remote.user = USERNAME
                     remote.password = USERPASS
-                    remote.allowAnyHosts = true
                         try {
                             echo "### Puts a configuration file from the current workspace to remote node ####"
                             sshPut remote: remote, from: 'train-schedule-kube.yml', into: '.'
