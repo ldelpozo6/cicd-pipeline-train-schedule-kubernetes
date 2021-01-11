@@ -1,11 +1,11 @@
 node {
+        def DOCKER_IMAGE_NAME="ldelpozo/train-schedule"
         stage('Build') {
                 echo 'Running build automation'
                 sh './gradlew build --no-daemon'
                 archiveArtifacts artifacts: 'dist/trainSchedule.zip'
         }
         stage('Build Docker Image') {
-            def DOCKER_IMAGE_NAME="ldelpozo/train-schedule"
             if (env.BRANCH_NAME == 'master') {
                 app = docker.build("${DOCKER_IMAGE_NAME}")
                 app.inside {
@@ -36,6 +36,7 @@ node {
                     echo "### Puts a configuration file from the current workspace to remote node ####"
                     sshPut remote: remote, from: 'train-schedule-kube.yml', into: '.'
                     echo "### Deploy configuration file on kubernetes ####"
+                    sshCommand remote: remote, command: "export DOCKER_IMAGE_NAME="${DOCKER_IMAGE_NAME}"; export BUILD_NUMBER="${env.BUILD_NUMBER}""
                     sshCommand remote: remote, command: "kubectl apply -f train-schedule-kube.yml"
                 }
             }
