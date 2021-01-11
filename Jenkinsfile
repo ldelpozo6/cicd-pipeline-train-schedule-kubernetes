@@ -53,9 +53,9 @@ pipeline {
                 )*/
                 withCredentials([usernamePassword(credentialsId: 'webserver_login', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
-                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$kubemaster_ip \"echo ${WORKSPACE}; ls -l ${WORKSPACE}\""
+                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no 'sh -s' > scp ${WORKSPACE}/train-schedule-kube.yml $USERNAME@$kubemaster_ip:/tmp/"
                         try {
-                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$kubemaster_ip \"kubectl apply -f ${WORKSPACE}/train-schedule-kube.yml\""
+                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$kubemaster_ip \"kubectl apply -f /tmp/train-schedule-kube.yml\""
                         } catch (err) {
                             echo: 'caught error: $err'
                         }
