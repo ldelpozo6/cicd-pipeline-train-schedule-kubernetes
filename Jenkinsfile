@@ -52,15 +52,21 @@ pipeline {
                     enableConfigSubstitution: true
                 )*/
                 withCredentials([usernamePassword(credentialsId: 'webserver_login', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
-                    script {
-                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no 'sh -s' > scp ${WORKSPACE}/train-schedule-kube.yml $USERNAME@$kubemaster_ip:/tmp/"
+                    def remote = [:]
+                    remote.name = "kubemaster"
+                    remote.host = "$kubemaster_ip"
+                    remote.user = USERNAME
+                    remote.password = USERPASS
+                    remote.allowAnyHosts = true
                         try {
-                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$kubemaster_ip \"kubectl apply -f /tmp/train-schedule-kube.yml\""
+                            echo "### Puts a configuration file from the current workspace to remote node ####"
+                            sshPut remote: remote, from: 'train-schedule-kube.yml', into: '.'
                         } catch (err) {
                             echo: 'caught error: $err'
                         }
-                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$kubemaster_ip \"kubectl get pods; kubectl get services\""
-                    }
+                        echo "### Deploy configuration file on kubernetes ####"
+                        sshCommand remote: remote, command: "kubectl apply -f train-schedule-kube.yml"
+
                 }
             }
         }
