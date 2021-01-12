@@ -29,7 +29,7 @@ node {
                 remote.name = "kubemaster"
                 remote.host = "$kubemaster_ip"
                 remote.allowAnyHosts = true
-                sh "sed -i 's/\$DOCKER_IMAGE_NAME:\$BUILD_NUMBER/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}/g' ${WORKSPACE}/train-schedule-kube.yml"
+                sh "sed -i 's|\$DOCKER_IMAGE_NAME:\$BUILD_NUMBER|${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}|g' ${WORKSPACE}/train-schedule-kube.yml"
                 sh "cat ${WORKSPACE}/train-schedule-kube.yml"
                 
                 withCredentials([usernamePassword(credentialsId: 'webserver_login', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
