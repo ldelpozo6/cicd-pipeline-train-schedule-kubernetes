@@ -29,6 +29,8 @@ node {
                 remote.name = "kubemaster"
                 remote.host = "$kubemaster_ip"
                 remote.allowAnyHosts = true
+                sh "sed -i 's/\$DOCKER_IMAGE_NAME:\$BUILD_NUMBER/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}/g' ${WORKSPACE}/train-schedule-kube.yml"
+                sh "cat ${WORKSPACE}/train-schedule-kube.yml"
                 
                 withCredentials([usernamePassword(credentialsId: 'webserver_login', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     remote.user = USERNAME
@@ -36,7 +38,7 @@ node {
                     echo "### Puts a configuration file from the current workspace to remote node ####"
                     sshPut remote: remote, from: 'train-schedule-kube.yml', into: '.'
                     echo "### Deploy configuration file on kubernetes ####"
-                    sshCommand remote: remote, command: """sed -i 's/\$DOCKER_IMAGE_NAME:\$BUILD_NUMBER/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}/g' train-schedule-kube.yml"""
+                    //sshCommand remote: remote, command: """sed -i 's/\$DOCKER_IMAGE_NAME:\$BUILD_NUMBER/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}/g' train-schedule-kube.yml"""
                     sshCommand remote: remote, command: "kubectl apply -f train-schedule-kube.yml"
                 }
             }
