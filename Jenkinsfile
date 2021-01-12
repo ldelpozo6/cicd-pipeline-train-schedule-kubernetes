@@ -41,7 +41,7 @@ node {
                                                         BUILD_NUMBER='${env.BUILD_NUMBER}' 
                                                         EOF 
                                                         """
-                    sshCommand remote: remote, command: "source vars, kubectl apply -f train-schedule-kube.yml"
+                    sshCommand remote: remote, command: "source vars; kubectl apply -f train-schedule-kube.yml"
                 }
             }
         }
