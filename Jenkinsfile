@@ -36,8 +36,6 @@ node {
                     echo "### Puts a configuration file from the current workspace to remote node ####"
                     sshPut remote: remote, from: 'train-schedule-kube.yml', into: '.'
                     echo "### Deploy configuration file on kubernetes ####"
-                    writeFile file: 'vars', text: "$vars"
-                    sshPut remote: remote, from: 'vars', into: '.'
                     sshCommand remote: remote, command: "sed -i 's/\$DOCKER_IMAGE_NAME:\$BUILD_NUMBER/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}/g' train-schedule-kube.yml"
                     sshCommand remote: remote, command: "kubectl apply -f train-schedule-kube.yml"
                 }
